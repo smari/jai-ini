@@ -38,6 +38,7 @@ ini_read_file :: (filename: string) -> *INI, bool {
     handler.strip_comments_from_ends_of_lines = false;
     handler.do_version_number = false;
 
+    // TODO: Copy strings where appropriate and reinstate this.
     //defer deinit(*handler);
 
     start_file(*handler, "INI file", filename, "INI reader", false);
@@ -96,6 +97,14 @@ init :: (ini: *INI) {
 }
 
 deinit :: (ini: *INI) {
+    // TODO: Free memory.
+}
+
+deinit :: (section: *INISection) {
+    // TODO: Free memory.
+}
+
+deinit :: (prop: *INIProperty) {
     // TODO: Free memory.
 }
 
