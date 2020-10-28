@@ -38,8 +38,7 @@ ini_read_file :: (filename: string) -> *INI, bool {
     handler.strip_comments_from_ends_of_lines = false;
     handler.do_version_number = false;
 
-    // TODO: Copy strings where appropriate and reinstate this.
-    //defer deinit(*handler);
+    defer deinit(*handler);
 
     start_file(*handler, "INI file", filename, "INI reader", false);
     if handler.failed return ini, false;
@@ -97,15 +96,20 @@ init :: (ini: *INI) {
 }
 
 deinit :: (ini: *INI) {
-    // TODO: Free memory.
+    for s:ini.sections deinit(s);
+    free(ini);
 }
 
 deinit :: (section: *INISection) {
-    // TODO: Free memory.
+    for p:section.props deinit(p);
+    free(section.name);
+    free(section);
 }
 
 deinit :: (prop: *INIProperty) {
-    // TODO: Free memory.
+    free(prop.key);
+    free(prop.value);
+    free(prop);
 }
 
 ini_add_section :: (ini: *INI, name: string, get_or_create := false) -> *INISection, INIDupeBehavior {
@@ -124,7 +128,7 @@ ini_add_section :: (ini: *INI, name: string, get_or_create := false) -> *INISect
         }
     }
     section := New(INISection);
-    section.name = name; // TODO: strcpy!
+    section.name = copy_string(name);
     array_add(*ini.sections, section);
     return section, .OVERRIDE;
 }
@@ -136,14 +140,14 @@ ini_add_value :: (ini: *INI, section: *INISection, key: string, value: string) -
     for p:section.props {
         if p.key == key {
             if ini.duplicate_behavior == .OVERRIDE {
-                p.value = value; // TODO: strcpy!
+                p.value = copy_string(value);
             }
             return ini.duplicate_behavior;
         }
     }
     prop := New(INIProperty);
-    prop.key = key; // TODO: strcpy!
-    prop.value = value; // TODO: strcpy!
+    prop.key = copy_string(key);
+    prop.value = copy_string(value);
     array_add(*section.props, prop);
     return .NONE;
 }
@@ -184,4 +188,5 @@ ini_get_float :: (ini: *INI, section: string, key: string, $T : Type = float) ->
 #import "Basic";
 #import "File";
 #import "String";
+#import "Bucket_Array";
 #import "Text_File_Handler";
