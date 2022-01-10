@@ -40,7 +40,7 @@ ini_read_file :: (filename: string) -> *INI, bool {
 
     defer deinit(*handler);
 
-    start_file(*handler, "INI file", filename, "INI reader", false);
+    start_file(*handler, "INI file", filename, false);
     if handler.failed return ini, false;
 
     while true {
